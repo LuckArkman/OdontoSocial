@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from src.api.v1.router import api_router
+from src.core.middlewares.tenant import TenantMiddleware
 from src.core.config import settings
 
 app = FastAPI(
@@ -11,6 +12,9 @@ app = FastAPI(
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Adicionar Middlewares
+app.add_middleware(TenantMiddleware)
 
 
 @app.get("/healthcheck", tags=["Health"])
