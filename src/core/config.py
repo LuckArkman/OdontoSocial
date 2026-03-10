@@ -25,6 +25,19 @@ class FastAPIAppSettings(BaseSettings):
     SECRET_KEY: str = os.getenv("SECRET_KEY", "provisory_secret_key_for_dev_only")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
 
+    # Banco de Dados
+    POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
+    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
+    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "postgres")
+    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "odontosocial")
+    SQLALCHEMY_DATABASE_URI: str | None = os.getenv("DATABASE_URL")
+
+    @property
+    def database_url(self) -> str:
+        if self.SQLALCHEMY_DATABASE_URI:
+            return self.SQLALCHEMY_DATABASE_URI
+        return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}/{self.POSTGRES_DB}"
+
     class Config:
         case_sensitive = True
         env_file = ".env"
