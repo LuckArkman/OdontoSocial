@@ -5,11 +5,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
+from src.api import deps
 from src.core import security
 from src.core.config import settings
 from src.db.session import get_db
 from src.models.user import User
 from src.schemas.token import Token
+from src.schemas.user import UserRead
 
 router = APIRouter()
 
@@ -43,3 +45,13 @@ def login_access_token(
         ),
         "token_type": "bearer",
     }
+
+
+@router.get("/me", response_model=UserRead)
+def read_user_me(
+    current_user: User = Depends(deps.get_current_user),
+) -> Any:
+    """
+    Retorna os dados do usuário atual autenticado.
+    """
+    return current_user

@@ -58,6 +58,7 @@ def register_clinic(*, db: Session = Depends(get_db), registration: ClinicRegist
         hashed_password=security.get_password_hash(registration.admin_password),
         full_name=registration.admin_full_name,
         tenant_id=new_tenant.id,
+        role="dono",
         is_active=True,
         is_superuser=False,  # Admins de clínica não são superusers globais
     )

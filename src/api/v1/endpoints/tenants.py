@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from src.api import deps
 from src.core.middlewares.tenant_context import get_tenant_id
 from src.db.session import get_db
 from src.models.tenant import Tenant
@@ -9,10 +10,11 @@ router = APIRouter()
 
 
 @router.get("/")
-def list_tenants(db: Session = Depends(get_db)):
+def list_tenants(
+    db: Session = Depends(get_db), _=Depends(deps.get_current_active_superuser)
+):
     """
-    Lista todos os tenants.
-    Nota: No futuro, esta rota será restrita a SuperAdmins (RBAC).
+    Lista todos os tenants. Restrito a SuperAdmins globais.
     """
     tenants = db.query(Tenant).all()
     return tenants
