@@ -10,11 +10,12 @@ engine = create_engine(
     pool_pre_ping=True,
 )
 
+
 @event.listens_for(engine, "checkout")
 def set_tenant_on_checkout(dbapi_connection, connection_record, connection_proxy):
     """
-    Injeta o tenant_id atual na sessão do PostgreSQL sempre que uma conexão 
-    for retirada do pool para uma request. Esse valor pode ser usado por 
+    Injeta o tenant_id atual na sessão do PostgreSQL sempre que uma conexão
+    for retirada do pool para uma request. Esse valor pode ser usado por
     Policies de RLS no banco de dados.
     """
     tenant_id = get_tenant_id()
@@ -26,6 +27,7 @@ def set_tenant_on_checkout(dbapi_connection, connection_record, connection_proxy
         # Se não houver tenant (ex: superadmin global), reseta a variável
         cursor.execute("RESET app.current_tenant;")
     cursor.close()
+
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

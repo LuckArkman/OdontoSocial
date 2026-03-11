@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from src.core.middlewares.tenant_context import get_tenant_id
 from src.db.session import get_db
 from src.models.tenant import Tenant
-from src.core.middlewares.tenant_context import get_tenant_id
 
 router = APIRouter()
 
@@ -32,6 +32,7 @@ def create_tenant(name: str, slug: str, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
     return db_tenant
+
 
 @router.get("/current/debug")
 def get_current_tenant_debug():
