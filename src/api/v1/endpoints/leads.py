@@ -13,6 +13,8 @@ from src.models.lead import Lead
 from src.models.user import User
 from src.schemas.lead import LeadCreate, LeadRead, LeadUpdate
 from src.tasks.leads import process_bulk_import
+from src.services.duplicate_matcher import DuplicateMatcher
+from src.services.lead_validator import LeadValidator
 
 router = APIRouter()
 
@@ -45,9 +47,23 @@ def create_lead(
     lead_in: LeadCreate,
 ) -> Any:
     """
-    Cria um novo lead vinculado ao Tenant logado.
+    Cria um novo lead vinculado ao Tenant logado com limpeza e deduplicação.
     """
-    db_lead = Lead(**lead_in.model_dump(), tenant_id=current_user.tenant_id)
+    # 1. Limpeza e Validação Adicional
+    is_valid, lead_validated, error = LeadValidator.validate_one(lead_in.model_dump())
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=error)
+
+    # 2. Verificar Duplicado
+    if DuplicateMatcher.is_duplicate(
+        db, current_user.tenant_id, lead_validated.phone, lead_validated.email
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Já existe um lead com este telefone ou e-mail nesta clínica.",
+        )
+
+    db_lead = Lead(**lead_validated.model_dump(), tenant_id=current_user.tenant_id)
     db.add(db_lead)
     db.commit()
     db.refresh(db_lead)

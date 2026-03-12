@@ -6,22 +6,16 @@ from pydantic import ValidationError
 from src.schemas.lead import LeadCreate
 
 
+from src.services.lead_cleaner import LeadCleaner
+
 class LeadValidator:
     """
     Consolida as validações de dados brutos para novos leads.
     """
 
     @staticmethod
-    def clean_phone(phone: str) -> str:
-        """
-        Normaliza telefones: remove caracteres não numéricos.
-        Se não começar com '+', assume-se o código do país do Brasil (+55).
-        """
-        digits = re.sub(r"\D", "", phone)
-
-        if not phone.startswith("+"):
-            return f"+55{digits}"
-        return f"+{digits}"
+    def clean_phone(phone: str) -> Optional[str]:
+        return LeadCleaner.normalize_phone(phone)
 
     @staticmethod
     def validate_one(
@@ -31,9 +25,20 @@ class LeadValidator:
         Valida um dicionário de dados brutos e retorna uma instância de LeadCreate se válido.
         """
         try:
-            # Normalização preliminar do telefone
+            # 1. Normalização de Telefone
             if "phone" in data:
-                data["phone"] = LeadValidator.clean_phone(str(data["phone"]))
+                phone_normalized = LeadValidator.clean_phone(str(data["phone"]))
+                if not phone_normalized:
+                    return False, None, "Telefone inválido para a região informada."
+                data["phone"] = phone_normalized
+            
+            # 2. Normalização de E-mail
+            if "email" in data:
+                data["email"] = LeadCleaner.clean_email(data["email"])
+                
+            # 3. Limpeza de Nome
+            if "name" in data:
+                data["name"] = LeadCleaner.clean_name(data["name"])
 
             # Validação Pydantic
             lead_in = LeadCreate(**data)

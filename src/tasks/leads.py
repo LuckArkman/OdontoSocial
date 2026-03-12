@@ -8,6 +8,7 @@ from src.db.session import SessionLocal
 from src.models.import_job import BulkImportJob, ImportStatus
 from src.models.lead import Lead
 from src.services.lead_validator import LeadValidator
+from src.services.duplicate_matcher import DuplicateMatcher
 
 
 @celery_app.task(name="src.tasks.leads.process_bulk_import")
@@ -49,6 +50,11 @@ def process_bulk_import(job_id: int, file_path: str, tenant_id: int):
             is_valid, lead_in, error = LeadValidator.validate_one(row_dict)
 
             if is_valid and lead_in:
+                # Deduplicação
+                if DuplicateMatcher.is_duplicate(db, tenant_id, lead_in.phone, lead_in.email):
+                    logger.warning(f"Lead duplicado ignorado: {lead_in.phone}")
+                    continue
+
                 # Salvar no banco
                 db_lead = Lead(**lead_in.model_dump(), tenant_id=tenant_id)
                 db.add(db_lead)

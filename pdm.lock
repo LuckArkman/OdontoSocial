@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:95af0f5f62db54dc704642e49d77ccf47d4eb6ccb12f142d326e72274ac8ee77"
+content_hash = "sha256:a899c90b1af72c3d3c566be77f2013160b6826f5afcf78db5041f339b3332852"
 
 [[metadata.targets]]
 requires_python = ">=3.12"
@@ -749,6 +749,17 @@ dependencies = [
 files = [
     {file = "passlib-1.7.4-py2.py3-none-any.whl", hash = "sha256:aa6bca462b8d8bda89c70b382f0c298a20b5560af6cbfa2dce410c0a2fb669f1"},
     {file = "passlib-1.7.4.tar.gz", hash = "sha256:defd50f72b65c5402ab2c573830a6978e5f202ad0d984793c8dde2c4152ebe04"},
+]
+
+[[package]]
+name = "phonenumbers"
+version = "9.0.25"
+requires_python = ">=2.5"
+summary = "Python version of Google's common library for parsing, formatting, storing and validating international phone numbers."
+groups = ["default"]
+files = [
+    {file = "phonenumbers-9.0.25-py2.py3-none-any.whl", hash = "sha256:b1fd6c20d588f5bcd40af3899d727a9f536364211ec6eac554fcd75ca58992a3"},
+    {file = "phonenumbers-9.0.25.tar.gz", hash = "sha256:a5f236fa384c6a77378d7836c8e486ade5f984ad2e8e6cc0dbe5124315cdc81b"},
 ]
 
 [[package]]
